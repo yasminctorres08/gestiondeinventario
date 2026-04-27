@@ -26,7 +26,7 @@
         const { useState, useEffect, useRef } = React;
        
         // URL DE TU GOOGLE APPS SCRIPT
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwYPqemzn7BJwB4tXb2sOyVEBcp0JIutrVNe3bVU1mBsjGLb2fRyqh6RWvIGYkMfbo/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwYPqemzn7BJwB4tXb2sOyVEBcp0JIutrVNe3bVU1mBsjGLb2fRyqh6RWvIGYMfbo/exec"; 
 
         const Icon = ({ name, className }) => {
             const iconRef = useRef(null);
@@ -78,6 +78,7 @@
             const [score, setScore] = useState(0);
             const [selectedAnswer, setSelectedAnswer] = useState(null);
             const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
+            const [answersLog, setAnswersLog] = useState([]);
 
             const totalItems = questions.length;
             const finalGrade = (score / totalItems) * 20;
@@ -94,7 +95,14 @@
                 const correct = answer === questions[currentQuestionIndex].answer;
                 setSelectedAnswer(answer);
                 setIsAnswerSubmitted(true);
+                
                 if (correct) setScore(s => s + 1);
+
+                setAnswersLog(prev => [...prev, {
+                    pregunta: questions[currentQuestionIndex].text,
+                    respuesta_usuario: answer ? "Verdadero" : "Falso",
+                    es_correcta: correct
+                }]);
             };
 
             const handleNext = () => {
@@ -111,33 +119,21 @@
                 if (WEB_APP_URL) {
                     setAppState('sending');
                     
-                    const cleanName = userName.trim().toUpperCase();
-                    
-                    // Creamos el set de datos con múltiples variantes de nombres de clave
-                    // para asegurar que el script capture una (Nombre, nombre, name, etc)
-                    const data = {
-                        nombre: cleanName,
-                        Nombre: cleanName,
-                        name: cleanName,
-                        unidad: "Manejo de Inventario (25 Preg)",
-                        Unidad: "Manejo de Inventario (25 Preg)",
-                        aciertos: score.toString(),
-                        Aciertos: score.toString(),
-                        total: totalItems.toString(),
+                    const payload = {
+                        nombre: userName.trim().toUpperCase(),
+                        puntaje: score,
+                        porcentaje: ((score / totalItems) * 100).toFixed(0),
                         nota: finalGrade.toFixed(2),
-                        Nota: finalGrade.toFixed(2)
+                        respuestas: answersLog
                     };
 
-                    const searchParams = new URLSearchParams(data).toString();
-
                     try {
-                        // Enviamos tanto en la URL (GET style) como en el cuerpo (POST style)
-                        // no-cors es necesario para Google Apps Script
-                        await fetch(`${WEB_APP_URL}?${searchParams}`, { 
+                        // Enviamos como JSON stringified en el cuerpo para que coincida con tu Apps Script
+                        await fetch(WEB_APP_URL, { 
                             method: 'POST', 
                             mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: searchParams
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
                         });
                     } catch (e) {
                         console.error("Error persistencia", e);
@@ -151,7 +147,7 @@
                 <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
                     <div className="text-center">
                         <div className="loader rounded-full border-4 border-t-4 border-cyan-500 h-14 w-14 mb-6 mx-auto"></div>
-                        <p className="text-cyan-400 font-black animate-pulse tracking-widest uppercase text-xs">Registrando Participante...</p>
+                        <p className="text-cyan-400 font-black animate-pulse tracking-widest uppercase text-xs">Sincronizando con Servidor...</p>
                         <p className="text-white text-sm mt-4 font-bold uppercase">{userName}</p>
                     </div>
                 </div>
