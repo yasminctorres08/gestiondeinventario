@@ -1,4 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Gestión de Inventario - Inces</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        h1, h2 { font-family: 'Space Grotesk', sans-serif; }
+        .loader { border-top-color: #0ea5e9; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+       
+        // URL DE TU GOOGLE APPS SCRIPT (Asegúrate de que sea la última versión publicada)
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4XsWFaoS0MrCDCeAV4a4TeydLn5mgKzZdVytasdt-CE3bIMCeKoofaMiwAUfwgyJS/exec"; 
+
+        const Icon = ({ name, className }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (window.lucide && iconRef.current) {
+                    iconRef.current.innerHTML = '';
+                    const i = document.createElement('i');
                     i.setAttribute('data-lucide', name);
                     i.className = className;
                     iconRef.current.appendChild(i);
