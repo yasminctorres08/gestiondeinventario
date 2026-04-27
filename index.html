@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Gestión de Inventario - Inces</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2 { font-family: 'Space Grotesk', sans-serif; }
+        .loader { border-top-color: #0ea5e9; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .bg-navy { background-color: #0f172a; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // Configuración de URL para Google Sheets (Opcional)
+        const WEB_APP_URL = ""; 
+
+        const Icon = ({ name, className }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (window.lucide && iconRef.current) {
+                    iconRef.current.innerHTML = '';
+                    const i = document.createElement('i');
+                    i.setAttribute('data-lucide', name);
+                    i.className = className;
+                    iconRef.current.appendChild(i);
+                    window.lucide.createIcons();
+                }
+            }, [name, className]);
+            return <span ref={iconRef} className="inline-flex items-center justify-center"></span>;
+        };
+
+        const questions = [
+            { id: 1, text: 'El control interno de inventarios busca salvaguardar los activos y asegurar la exactitud de los registros.', answer: true, explanation: 'Verdadero. Protege los bienes y garantiza información contable real.', icon: "shield-check" },
+            { id: 2, text: 'La segregación de funciones permite que una sola persona reciba, registre y autorice el pago.', answer: false, explanation: 'Falso. Las funciones deben estar separadas (recepción, registro y pago) para evitar riesgos de fraude.', icon: "users-round" },
+            { id: 3, text: 'El stock de seguridad es una cantidad extra para mitigar el riesgo de desabastecimiento.', answer: true, explanation: 'Verdadero. Sirve como colchón ante retrasos de proveedores o aumentos inesperados de demanda.', icon: "package-plus" },
+            { id: 4, text: 'El Punto de Reorden (ROP) indica el nivel de stock en el que se debe emitir un nuevo pedido.', answer: true, explanation: 'Verdadero. Es el momento justo para reponer antes de agotar las existencias.', icon: "bell-ring" },
+            { id: 5, text: 'El método PEPS (FIFO) implica que lo primero que entra es lo primero que sale.', answer: true, explanation: 'Verdadero. Es el método ideal para productos con fecha de vencimiento.', icon: "arrow-right-left" },
+            { id: 6, text: 'Un inventario máximo muy alto reduce los costos de almacenamiento y seguros.', answer: false, explanation: 'Falso. Mantener un inventario excesivo aumenta considerablemente los costos de mantenimiento y riesgo de pérdida.', icon: "trending-down" },
+            { id: 7, text: 'El "Lead Time" es el tiempo de espera desde el pedido hasta la recepción de mercancía.', answer: true, explanation: 'Verdadero. Es el tiempo total que tarda un proveedor en entregar lo solicitado.', icon: "clock-3" },
+            { id: 8, text: 'La gestión de riesgos solo debe considerar factores internos del almacén.', answer: false, explanation: 'Falso. Debe considerar riesgos externos como inflación, huelgas de transporte o fallas eléctricas.', icon: "alert-octagon" },
+            { id: 9, text: 'La verificación física consiste en contar la mercancía y compararla con el sistema.', answer: true, explanation: 'Verdadero. Es la única forma de validar la precisión del inventario contable.', icon: "clipboard-check" },
+            { id: 10, text: 'El método de Promedio Ponderado calcula un costo unitario dividiendo el costo total entre unidades.', answer: true, explanation: 'Verdadero. Este método ayuda a suavizar las fluctuaciones de precios en las compras.', icon: "calculator" },
+            { id: 11, text: 'El costo de oportunidad es el beneficio que se pierde al tener dinero inmovilizado en stock excesivo.', answer: true, explanation: 'Verdadero. Representa lo que se deja de ganar por no invertir ese capital en otras áreas.', icon: "dollar-sign" },
+            { id: 12, text: 'La rotación de inventario mide la velocidad con la que se renuevan las existencias en un periodo.', answer: true, explanation: 'Verdadero. Una alta rotación suele indicar una gestión eficiente de ventas y compras.', icon: "refresh-cw" },
+            { id: 13, text: 'El inventario mínimo es el nivel crítico por debajo del cual hay riesgo inminente de quiebre de stock.', answer: true, explanation: 'Verdadero. Es el límite inferior de seguridad operativa.', icon: "thermometer-snowflake" },
+            { id: 14, text: 'La merma es la diferencia positiva entre el inventario físico y el contable.', answer: false, explanation: 'Falso. La merma representa una pérdida de valor o cantidad (por daño, robo o evaporación).', icon: "package-x" },
+            { id: 15, text: 'El método UEPS (LIFO) asume que las últimas unidades en entrar son las primeras en salir.', answer: true, explanation: 'Verdadero. Aunque su uso es restringido en ciertas normativas, se basa en esta premisa temporal.', icon: "history" },
+            { id: 16, text: 'La auditoría de inventario busca verificar el cumplimiento de las políticas de control interno.', answer: true, explanation: 'Verdadero. Garantiza la transparencia y el cumplimiento de normas de gestión.', icon: "search-code" },
+            { id: 17, text: 'El almacenamiento genera costos operativos como alquiler, servicios, personal y seguridad.', answer: true, explanation: 'Verdadero. Estos costos deben ser optimizados para mejorar la rentabilidad.', icon: "warehouse" },
+            { id: 18, text: 'Un sistema automatizado de inventarios elimina por completo la necesidad de conteos físicos.', answer: false, explanation: 'Falso. El conteo físico es vital para detectar errores que el sistema no puede ver automáticamente.', icon: "barcode" },
+            { id: 19, text: 'La obsolescencia ocurre cuando un producto pierde vigencia comercial o funcional.', answer: true, explanation: 'Verdadero. Puede deberse a avances tecnológicos o cambios en la moda.', icon: "calendar-x" },
+            { id: 20, text: 'Comprar mercancía en exceso ayuda a mejorar inmediatamente el flujo de caja de la empresa.', answer: false, explanation: 'Falso. La compra excesiva inmoviliza el efectivo, afectando negativamente la liquidez.', icon: "wallet-cards" },
+            { id: 21, text: 'El lote económico de compra (EOQ) busca el equilibrio entre costos de pedido y mantenimiento.', answer: true, explanation: 'Verdadero. Es el modelo matemático para hallar el tamaño de pedido óptimo.', icon: "target" },
+            { id: 22, text: 'El Kárdex es un documento o registro donde se controlan las entradas, salidas y saldos.', answer: true, explanation: 'Verdadero. Es el corazón del control administrativo de almacén.', icon: "files" },
+            { id: 23, text: 'En el método PEPS, el inventario final se valora con los precios de las compras más antiguas.', answer: false, explanation: 'Falso. En el PEPS, el inventario final queda valorado a los precios de las compras más recientes.', icon: "dollar-sign" },
+            { id: 24, text: 'La soberanía alimentaria depende en gran medida de una gestión eficiente de los inventarios.', answer: true, explanation: 'Verdadero. Una buena logística asegura que los alimentos lleguen oportunamente al pueblo.', icon: "flag" },
+            { id: 25, text: 'El ajuste por inflación no tiene impacto en la reposición de mercancías.', answer: false, explanation: 'Falso. La inflación obliga a revisar constantemente los costos para poder reponer el inventario.', icon: "trending-up" }
+        ];
+
+        function App() {
+            const [appState, setAppState] = useState('start'); 
+            const [userName, setUserName] = useState('');
+            const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
+            const [errorMessage, setErrorMessage] = useState('');
+
+            const totalItems = questions.length;
+            const finalGrade = (score / totalItems) * 20;
+
+            const handleStart = (e) => {
+                e.preventDefault();
+                if (userName.trim()) setAppState('playing');
+            };
+
+            const handleAnswer = (answer) => {
+                if (isAnswerSubmitted) return;
+                const correct = answer === questions[currentQuestionIndex].answer;
+                setSelectedAnswer(answer);
+                setIsAnswerSubmitted(true);
+                if (correct) setScore(s => s + 1);
+            };
+
+            const handleNext = () => {
+                if (currentQuestionIndex < totalItems - 1) {
+                    setCurrentQuestionIndex(i => i + 1);
+                    setSelectedAnswer(null);
+                    setIsAnswerSubmitted(false);
+                } else {
+                    setAppState('finished');
+                }
+            };
+
+            const sendToDrive = async () => {
+                if (!WEB_APP_URL) {
+                    setAppState('exit'); 
+                    return;
+                }
+                setAppState('sending');
+                const payload = {
+                    nombre: userName,
+                    unidad: "Gestión de Inventario (25 Preg)",
+                    aciertos: score,
+                    total: totalItems,
+                    nota_sobre_20: finalGrade.toFixed(2)
+                };
+                try {
+                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    setTimeout(() => setAppState('exit'), 1000);
+                } catch (e) {
+                    setErrorMessage("Error al guardar en el servidor. Intente de nuevo.");
+                    setAppState('finished');
+                }
+            };
+
+            if (appState === 'exit') return (
+                <div className="min-h-screen flex items-center justify-center bg-navy p-6 text-white text-center animate-fade-in">
+                    <div>
+                        <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/20">
+                            <Icon name="check-circle" className="w-12 h-12 text-white" />
+                        </div>
+                        <h2 className="text-3xl font-black mb-2 italic">CALIFICACIÓN REGISTRADA</h2>
+                        <p className="text-cyan-200 mb-10 uppercase tracking-[0.2em] text-[10px]">¡Buen trabajo! Los datos han sido procesados.</p>
+                        <button onClick={() => window.location.reload()} className="px-14 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all font-black uppercase text-[10px] tracking-widest shadow-lg">Finalizar Sesión</button>
+                    </div>
+                </div>
+            );
+
+            if (appState === 'sending') return (
+                <div className="min-h-screen flex items-center justify-center bg-navy">
+                    <div className="text-center">
+                        <div className="loader rounded-full border-4 border-t-4 border-slate-700 h-14 w-14 mb-4 mx-auto"></div>
+                        <p className="text-cyan-400 font-black animate-pulse tracking-widest uppercase text-[10px]">Enviando nota al servidor Inces...</p>
+                    </div>
+                </div>
+            );
+
+            if (appState === 'start') return (
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
+                    <div className="max-w-md w-full bg-slate-800 rounded-[3rem] shadow-2xl border border-slate-700 overflow-hidden">
+                        <div className="bg-gradient-to-br from-indigo-950 to-navy p-12 text-center text-white border-b border-slate-700">
+                            <div className="w-16 h-16 bg-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
+                                <Icon name="boxes" className="w-8 h-8 text-cyan-400" />
+                            </div>
+                            <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">Manejo de</h1>
+                            <h1 className="text-4xl font-black uppercase tracking-widest text-cyan-400">Inventario</h1>
+                            <p className="mt-2 text-[9px] text-cyan-500/60 uppercase tracking-[0.3em]">Formación Profesional Inces</p>
+                        </div>
+                        <form onSubmit={handleStart} className="p-10">
+                            <label className="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3 ml-2 italic text-center">Nombre del Estudiante</label>
+                            <input required className="w-full p-5 bg-slate-900 border-2 border-slate-700 rounded-2xl mb-8 outline-none focus:border-cyan-500 text-white text-center font-bold tracking-wide uppercase" value={userName} onChange={e => setUserName(e.target.value)} placeholder="Ej: PÉREZ JUAN" />
+                            <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl tracking-widest uppercase text-xs">Comenzar Evaluación</button>
+                        </form>
+                    </div>
+                </div>
+            );
+
+            if (appState === 'finished') return (
+                <div className="min-h-screen flex items-center justify-center p-4 bg-navy">
+                    <div className="max-w-md w-full bg-slate-800 rounded-[3rem] shadow-2xl p-12 text-center border border-slate-700 animate-fade-in">
+                        <h2 className="text-cyan-500 font-black uppercase tracking-widest mb-4 text-[10px]">Evaluación Completada</h2>
+                        <h1 className="text-xl font-black text-white mb-10 uppercase italic border-b border-slate-700 pb-4 truncate">{userName}</h1>
+                        
+                        <div className="grid grid-cols-2 gap-4 mb-10">
+                            <div className="bg-slate-900/50 p-6 rounded-3xl border border-slate-700">
+                                <div className="text-2xl font-black text-white">{score} <span className="text-slate-500 text-xs">/ {totalItems}</span></div>
+                                <div className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">Aciertos</div>
+                            </div>
+                            <div className="bg-slate-900 p-6 rounded-3xl border-2 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+                                <div className="text-4xl font-black text-cyan-400">{finalGrade.toFixed(1)}</div>
+                                <div className="text-[9px] text-cyan-500 uppercase tracking-widest mt-1 font-bold italic">Nota / 20 pts</div>
+                            </div>
+                        </div>
+
+                        {errorMessage && <p className="mb-4 text-rose-400 text-[10px] font-black">{errorMessage}</p>}
+                        
+                        <button onClick={sendToDrive} className="w-full bg-cyan-500 text-slate-950 font-black py-6 rounded-2xl flex items-center justify-center space-x-3 hover:bg-cyan-400 transition-all shadow-lg">
+                            <Icon name="save" className="w-5 h-5" />
+                            <span className="tracking-widest uppercase text-xs italic">Registrar Resultado</span>
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const q = questions[currentQuestionIndex];
+            const isCorrect = isAnswerSubmitted && selectedAnswer === q.answer;
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-start p-4 bg-slate-100 pt-8">
+                    <div className="max-w-2xl w-full">
+                        {/* Indicador de Progreso */}
+                        <div className="mb-8 px-6">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Ítem {currentQuestionIndex + 1} de {totalItems}</span>
+                                <div className="px-3 py-1 bg-white border border-slate-200 rounded-full shadow-sm text-[10px] font-black text-navy uppercase italic">Manejo de Inventario</div>
+                            </div>
+                            <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden shadow-inner border border-white">
+                                <div className="h-full bg-navy transition-all duration-700 ease-out" style={{ width: `${((currentQuestionIndex + 1) / totalItems) * 100}%` }}></div>
+                            </div>
+                        </div>
+
+                        {/* Tarjeta de Pregunta */}
+                        <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-200 animate-fade-in">
+                            <div className="p-12 sm:p-16 text-center">
+                                <div className="mb-10 flex justify-center">
+                                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-navy shadow-sm">
+                                        <Icon name={q.icon} className="w-7 h-7" />
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-800 leading-tight mb-14 min-h-[5rem] px-4 italic">{q.text}</h2>
+                                
+                                <div className="grid grid-cols-2 gap-6 px-4">
+                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(true)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[11px] transition-all shadow-sm ${!isAnswerSubmitted ? 'border-slate-100 bg-white hover:bg-navy hover:text-white' : selectedAnswer === true ? (q.answer === true ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-200' : 'bg-rose-500 border-rose-500 text-white shadow-rose-200') : (q.answer === true ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Verdadero</button>
+                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(false)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[11px] transition-all shadow-sm ${!isAnswerSubmitted ? 'border-slate-100 bg-white hover:bg-navy hover:text-white' : selectedAnswer === false ? (q.answer === false ? 'bg-emerald-500 border-emerald-500 text-white shadow-emerald-200' : 'bg-rose-500 border-rose-500 text-white shadow-rose-200') : (q.answer === false ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Falso</button>
+                                </div>
+                            </div>
+
+                            {/* Retroalimentación */}
+                            {isAnswerSubmitted && (
+                                <div className={`p-10 border-t-8 animate-fade-in ${isCorrect ? 'bg-emerald-50 border-emerald-500' : 'bg-rose-50 border-rose-500'}`}>
+                                    <div className="flex items-start space-x-4">
+                                        <Icon name={isCorrect ? "check-circle-2" : "alert-circle"} className={`w-6 h-6 shrink-0 mt-1 ${isCorrect ? 'text-emerald-600' : 'text-rose-600'}`} />
+                                        <div className="flex-1">
+                                            <h4 className={`font-black text-[10px] uppercase tracking-widest mb-2 ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>{isCorrect ? '¡Excelente!' : 'Analicemos:'}</h4>
+                                            <p className="text-slate-800 text-sm mb-8 font-medium leading-relaxed italic">"{q.explanation}"</p>
+                                            <button onClick={handleNext} className="w-full sm:w-auto bg-navy text-white py-4 px-12 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center space-x-3 hover:bg-slate-800 transition-all shadow-xl">
+                                                <span>{currentQuestionIndex < totalItems - 1 ? 'Siguiente Pregunta' : 'Ver Nota Final'}</span>
+                                                <Icon name="arrow-right" className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <p className="mt-8 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] italic">Inces Yaracuy • Sistema de Evaluación 2026</p>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
