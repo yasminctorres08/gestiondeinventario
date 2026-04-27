@@ -1,39 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluación Gestión de Inventario - Inces</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2 { font-family: 'Space Grotesk', sans-serif; }
-        .loader { border-top-color: #0ea5e9; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body class="bg-slate-100">
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-       
-        // URL DE TU GOOGLE APPS SCRIPT
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby9LB6-eKa1F4cskoxV_n32ZsPTNPVoGZA3TKuuOw/dev"; 
-
-        const Icon = ({ name, className }) => {
-            const iconRef = useRef(null);
-            useEffect(() => {
-                if (window.lucide && iconRef.current) {
-                    iconRef.current.innerHTML = '';
-                    const i = document.createElement('i');
                     i.setAttribute('data-lucide', name);
                     i.className = className;
                     iconRef.current.appendChild(i);
@@ -53,22 +18,7 @@
             { id: 7, text: 'El "Lead Time" es el tiempo de espera desde el pedido hasta la recepción de mercancía.', answer: true, explanation: 'Verdadero. Es el tiempo total de entrega del proveedor.', icon: "clock-3" },
             { id: 8, text: 'La gestión de riesgos solo debe considerar factores internos del almacén.', answer: false, explanation: 'Falso. Debe incluir factores externos como clima, transporte y economía.', icon: "alert-octagon" },
             { id: 9, text: 'La verificación física consiste en contar la mercancía y compararla con el sistema.', answer: true, explanation: 'Verdadero. Valida que lo que dice el papel o sistema sea real.', icon: "clipboard-check" },
-            { id: 10, text: 'El método de Promedio Ponderado calcula un costo unitario dividiendo el costo total entre unidades.', answer: true, explanation: 'Verdadero. Suaviza las variaciones de precio en periodos inflacionarios.', icon: "calculator" },
-            { id: 11, text: 'El costo de oportunidad es el beneficio que se pierde al tener dinero inmovilizado en stock.', answer: true, explanation: 'Verdadero. Es el capital que podrías usar en otros proyectos productivos.', icon: "dollar-sign" },
-            { id: 12, text: 'La rotación de inventario mide la velocidad con la que se renuevan las existencias.', answer: true, explanation: 'Verdadero. Indica qué tan eficiente es el flujo de ventas y reposición.', icon: "refresh-cw" },
-            { id: 13, text: 'El inventario mínimo es el nivel crítico por debajo del cual hay riesgo de quiebre de stock.', answer: true, explanation: 'Verdadero. Es el umbral más bajo de seguridad operativa.', icon: "thermometer-snowflake" },
-            { id: 14, text: 'La merma es la diferencia positiva entre el inventario físico y el contable.', answer: false, explanation: 'Falso. La merma es una pérdida (por daño, robo o caducidad).', icon: "package-x" },
-            { id: 15, text: 'El método UEPS (LIFO) asume que las últimas unidades en entrar son las primeras en salir.', answer: true, explanation: 'Verdadero. Aunque su uso contable es limitado hoy día, esta es su lógica.', icon: "history" },
-            { id: 16, text: 'La auditoría de inventario busca verificar el cumplimiento de las políticas de control.', answer: true, explanation: 'Verdadero. Asegura que los procesos se realicen según las normas establecidas.', icon: "search-code" },
-            { id: 17, text: 'El almacenamiento genera costos operativos como alquiler, personal y seguridad.', answer: true, explanation: 'Verdadero. Mantener stock siempre tiene un costo logístico asociado.', icon: "warehouse" },
-            { id: 18, text: 'Un sistema automatizado elimina por completo la necesidad de conteos físicos.', answer: false, explanation: 'Falso. El conteo físico sigue siendo necesario para auditar el sistema.', icon: "barcode" },
-            { id: 19, text: 'La obsolescencia ocurre cuando un producto pierde vigencia comercial o funcional.', answer: true, explanation: 'Verdadero. Puede ser por tecnología nueva o cambios en el mercado.', icon: "calendar-x" },
-            { id: 20, text: 'Comprar mercancía en exceso ayuda a mejorar inmediatamente el flujo de caja.', answer: false, explanation: 'Falso. Inmoviliza el efectivo, lo que perjudica la liquidez inmediata.', icon: "wallet-cards" },
-            { id: 21, text: 'El lote económico de compra (EOQ) busca el equilibrio entre pedir y mantener stock.', answer: true, explanation: 'Verdadero. Optimiza los costos totales de la gestión de pedidos.', icon: "target" },
-            { id: 22, text: 'El Kárdex es un registro donde se controlan entradas, salidas y saldos.', answer: true, explanation: 'Verdadero. Es la herramienta básica para el seguimiento administrativo.', icon: "files" },
-            { id: 23, text: 'En el método PEPS, el inventario final se valora con los precios más antiguos.', answer: false, explanation: 'Falso. Se valora con los precios de las compras más recientes.', icon: "dollar-sign" },
-            { id: 24, text: 'Durante una toma física de inventario, se recomienda detener el movimiento de mercancía.', answer: true, explanation: 'Verdadero. Evita errores de conteo por ingresos o egresos no registrados en ese momento.', icon: "stop-circle" },
-            { id: 25, text: 'El ajuste por inflación obliga a revisar los costos de reposición de mercancías.', answer: true, explanation: 'Verdadero. El valor de reposición cambia y afecta la rentabilidad futuro.', icon: "trending-up" }
+            { id: 10, text: 'El método de Promedio Ponderado calcula un costo unitario dividiendo el costo total entre unidades.', answer: true, explanation: 'Verdadero. Suaviza las variaciones de precio en periodos inflacionarios.', icon: "calculator" }
         ];
 
         function App() {
@@ -92,14 +42,16 @@
 
             const handleAnswer = (answer) => {
                 if (isAnswerSubmitted) return;
-                const correct = answer === questions[currentQuestionIndex].answer;
+                const currentQ = questions[currentQuestionIndex];
+                const correct = answer === currentQ.answer;
+                
                 setSelectedAnswer(answer);
                 setIsAnswerSubmitted(true);
                 
                 if (correct) setScore(s => s + 1);
 
                 setAnswersLog(prev => [...prev, {
-                    pregunta: questions[currentQuestionIndex].text,
+                    pregunta: currentQ.text,
                     respuesta_usuario: answer ? "Verdadero" : "Falso",
                     es_correcta: correct
                 }]);
@@ -116,154 +68,143 @@
             };
 
             const handleFinalizeAndClose = async () => {
-                if (WEB_APP_URL) {
-                    setAppState('sending');
-                    
-                    const payload = {
-                        nombre: userName.trim().toUpperCase(),
-                        puntaje: score,
-                        porcentaje: ((score / totalItems) * 100).toFixed(0),
-                        nota: finalGrade.toFixed(2),
-                        respuestas: answersLog
-                    };
+                setAppState('sending');
+                
+                const payload = {
+                    nombre: userName.trim().toUpperCase(),
+                    puntaje: score,
+                    porcentaje: ((score / totalItems) * 100).toFixed(0),
+                    respuestas: answersLog
+                };
 
-                    try {
-                        // Enviamos como JSON stringified en el cuerpo para que coincida con tu Apps Script
-                        await fetch(WEB_APP_URL, { 
-                            method: 'POST', 
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                    } catch (e) {
-                        console.error("Error persistencia", e);
-                    }
+                try {
+                    // Envío compatible con el script de Google
+                    await fetch(WEB_APP_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (e) {
+                    console.error("Error al enviar", e);
                 }
                 
                 setAppState('closed');
             };
 
-            if (appState === 'sending') return (
-                <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-                    <div className="text-center">
-                        <div className="loader rounded-full border-4 border-t-4 border-cyan-500 h-14 w-14 mb-6 mx-auto"></div>
-                        <p className="text-cyan-400 font-black animate-pulse tracking-widest uppercase text-xs">Sincronizando con Servidor...</p>
-                        <p className="text-white text-sm mt-4 font-bold uppercase">{userName}</p>
-                    </div>
-                </div>
-            );
-
-            if (appState === 'closed') return (
-                <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white p-6 text-center">
-                    <div className="animate-fade-in max-w-sm">
-                        <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Icon name="check-check" className="w-10 h-10 text-emerald-500" />
-                        </div>
-                        <h1 className="text-2xl font-black uppercase tracking-tighter mb-4">Registro Completo</h1>
-                        <p className="text-slate-400 text-sm mb-8">Tus datos se enviaron correctamente. Por favor, informa al facilitador que has terminado.</p>
-                        <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 mb-8">
-                            <p className="text-[10px] uppercase text-slate-500 mb-1">Nota Guardada</p>
-                            <p className="text-2xl font-black text-emerald-400">{finalGrade.toFixed(1)} / 20</p>
-                        </div>
-                    </div>
-                </div>
-            );
-
             if (appState === 'start') return (
                 <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
-                    <div className="max-w-md w-full bg-slate-800 rounded-[3rem] shadow-2xl border border-slate-700 overflow-hidden animate-fade-in">
-                        <div className="bg-gradient-to-br from-indigo-950 to-slate-900 p-12 text-center text-white border-b border-slate-700">
-                            <div className="w-16 h-16 bg-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
-                                <Icon name="boxes" className="w-8 h-8 text-cyan-400" />
-                            </div>
-                            <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">Manejo de</h1>
-                            <h1 className="text-4xl font-black uppercase tracking-widest text-cyan-400">Inventario</h1>
-                            <p className="mt-2 text-[9px] text-cyan-500/60 uppercase tracking-[0.3em]">Examen Digital Inces</p>
+                    <div className="max-w-md w-full bg-slate-800 rounded-[2.5rem] shadow-2xl border border-slate-700 overflow-hidden animate-fade-in">
+                        <div className="bg-gradient-to-br from-indigo-900 to-slate-900 p-10 text-center text-white">
+                            <Icon name="boxes" className="w-12 h-12 text-cyan-400 mb-4" />
+                            <h1 className="text-2xl font-black uppercase tracking-tighter">Gestión de Inventario</h1>
+                            <p className="text-[10px] text-cyan-500 uppercase tracking-widest mt-2">Evaluación Formativa Inces</p>
                         </div>
-                        <form onSubmit={handleStart} className="p-10">
-                            <label className="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3 ml-2 italic text-center italic">Ingresa tu Nombre Completo</label>
-                            <input required className="w-full p-5 bg-slate-900 border-2 border-slate-700 rounded-2xl mb-8 outline-none focus:border-cyan-500 text-white text-center font-bold tracking-wide uppercase" value={userName} onChange={e => setUserName(e.target.value)} placeholder="Ej: JUAN PEREZ" />
-                            <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl tracking-widest uppercase text-xs">Entrar a la Prueba</button>
+                        <form onSubmit={handleStart} className="p-8">
+                            <input 
+                                required 
+                                className="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl mb-6 outline-none focus:border-cyan-500 text-white text-center font-bold uppercase" 
+                                value={userName} 
+                                onChange={e => setUserName(e.target.value)} 
+                                placeholder="NOMBRE Y APELLIDO" 
+                            />
+                            <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-4 rounded-xl transition-all uppercase text-sm tracking-widest">
+                                Comenzar Prueba
+                            </button>
                         </form>
                     </div>
                 </div>
             );
 
-            if (appState === 'finished') return (
-                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-950">
-                    <div className="max-w-md w-full bg-slate-800 rounded-[3rem] shadow-2xl p-12 text-center border border-slate-700 animate-fade-in">
-                        <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
-                            <Icon name="award" className="w-10 h-10 text-emerald-400" />
+            if (appState === 'playing') {
+                const q = questions[currentQuestionIndex];
+                const isCorrect = isAnswerSubmitted && selectedAnswer === q.answer;
+
+                return (
+                    <div className="min-h-screen flex flex-col items-center pt-10 px-4">
+                        <div className="max-w-xl w-full">
+                            <div className="mb-6 flex justify-between items-end">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pregunta {currentQuestionIndex + 1} / {totalItems}</p>
+                                    <p className="text-xs font-bold text-slate-600 uppercase">{userName}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xl font-black text-slate-800">{((currentQuestionIndex / totalItems) * 100).toFixed(0)}%</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-200 animate-fade-in">
+                                <div className="p-10 text-center">
+                                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-6 text-slate-400">
+                                        <Icon name={q.icon} className="w-6 h-6" />
+                                    </div>
+                                    <h2 className="text-lg font-bold text-slate-800 leading-snug mb-10 italic">"{q.text}"</h2>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button 
+                                            disabled={isAnswerSubmitted} 
+                                            onClick={() => handleAnswer(true)} 
+                                            className={`py-5 rounded-xl border-2 font-black uppercase text-[10px] tracking-widest transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:border-slate-800' : selectedAnswer === true ? (q.answer === true ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === true ? 'border-emerald-500 text-emerald-500' : 'opacity-30')}`}>
+                                            Verdadero
+                                        </button>
+                                        <button 
+                                            disabled={isAnswerSubmitted} 
+                                            onClick={() => handleAnswer(false)} 
+                                            className={`py-5 rounded-xl border-2 font-black uppercase text-[10px] tracking-widest transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:border-slate-800' : selectedAnswer === false ? (q.answer === false ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === false ? 'border-emerald-500 text-emerald-500' : 'opacity-30')}`}>
+                                            Falso
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {isAnswerSubmitted && (
+                                    <div className={`p-8 border-t-4 animate-fade-in ${isCorrect ? 'bg-emerald-50 border-emerald-500' : 'bg-rose-50 border-rose-500'}`}>
+                                        <p className="text-[10px] font-black uppercase mb-2">{isCorrect ? '✓ Excelente' : '✗ Incorrecto'}</p>
+                                        <p className="text-sm text-slate-700 mb-6 font-medium leading-relaxed italic">{q.explanation}</p>
+                                        <button onClick={handleNext} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest">
+                                            {currentQuestionIndex < totalItems - 1 ? 'Siguiente Pregunta' : 'Finalizar Evaluación'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <h2 className="text-cyan-500 font-black uppercase tracking-widest mb-2 text-[10px]">Examen Finalizado</h2>
-                        <h1 className="text-xl font-black text-white mb-8 uppercase italic border-b border-slate-700 pb-4 truncate">{userName}</h1>
+                    </div>
+                );
+            }
+
+            if (appState === 'finished') return (
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
+                    <div className="max-w-md w-full bg-slate-800 rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-700 animate-fade-in">
+                        <Icon name="award" className="w-16 h-16 text-emerald-400 mb-6 mx-auto" />
+                        <h1 className="text-white font-black text-xl mb-2 uppercase">{userName}</h1>
+                        <p className="text-slate-400 text-xs uppercase tracking-widest mb-8">Has completado el examen</p>
                         
-                        <div className="grid grid-cols-2 gap-4 mb-10">
-                            <div className="bg-slate-900/50 p-6 rounded-3xl border border-slate-700">
-                                <div className="text-2xl font-black text-white">{score} <span className="text-slate-500 text-xs">/ {totalItems}</span></div>
-                                <div className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">Aciertos</div>
-                            </div>
-                            <div className="bg-slate-900 p-6 rounded-3xl border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                                <div className="text-4xl font-black text-emerald-400">{finalGrade.toFixed(1)}</div>
-                                <div className="text-[9px] text-emerald-500 uppercase tracking-widest mt-1 font-bold italic">Nota Final</div>
-                            </div>
+                        <div className="bg-slate-900 rounded-3xl p-8 mb-8 border border-slate-700">
+                            <p className="text-[10px] text-slate-500 uppercase font-black mb-1">Calificación</p>
+                            <p className="text-5xl font-black text-emerald-400">{finalGrade.toFixed(1)}<span className="text-lg text-slate-600">/20</span></p>
                         </div>
 
-                        <button onClick={handleFinalizeAndClose} className="w-full bg-rose-600 text-white font-black py-6 rounded-2xl flex items-center justify-center space-x-3 hover:bg-rose-500 transition-all shadow-lg active:scale-95">
-                            <Icon name="save" className="w-5 h-5" />
-                            <span className="tracking-widest uppercase text-xs italic">Guardar Resultados</span>
+                        <button onClick={handleFinalizeAndClose} className="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-5 rounded-xl transition-all uppercase text-xs tracking-widest">
+                            Guardar y Salir
                         </button>
                     </div>
                 </div>
             );
 
-            const q = questions[currentQuestionIndex];
-            const isCorrect = isAnswerSubmitted && selectedAnswer === q.answer;
+            if (appState === 'sending') return (
+                <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+                    <div className="text-center">
+                        <div className="loader rounded-full border-4 border-t-4 border-cyan-500 h-12 w-12 mb-6 mx-auto"></div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-cyan-500">Enviando a la Hoja de Cálculo...</p>
+                    </div>
+                </div>
+            );
 
-            return (
-                <div className="min-h-screen flex flex-col items-center justify-start p-4 bg-slate-100 pt-8">
-                    <div className="max-w-2xl w-full">
-                        <div className="mb-8 px-6">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Pregunta {currentQuestionIndex + 1} de {totalItems}</span>
-                                <div className="px-3 py-1 bg-white border border-slate-200 rounded-full shadow-sm text-[10px] font-black text-slate-800 uppercase italic">Participante: {userName}</div>
-                            </div>
-                            <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden shadow-inner border border-white">
-                                <div className="h-full bg-slate-900 transition-all duration-700 ease-out" style={{ width: `${((currentQuestionIndex + 1) / totalItems) * 100}%` }}></div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-200 animate-fade-in">
-                            <div className="p-10 sm:p-14 text-center">
-                                <div className="mb-8 flex justify-center">
-                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-900">
-                                        <Icon name={q.icon} className="w-6 h-6" />
-                                    </div>
-                                </div>
-                                <h2 className="text-xl font-bold text-slate-800 leading-tight mb-12 min-h-[4rem] italic">{q.text}</h2>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(true)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[10px] transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:bg-slate-900 hover:text-white' : selectedAnswer === true ? (q.answer === true ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === true ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Verdadero</button>
-                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(false)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[10px] transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:bg-slate-900 hover:text-white' : selectedAnswer === false ? (q.answer === false ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === false ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Falso</button>
-                                </div>
-                            </div>
-
-                            {isAnswerSubmitted && (
-                                <div className={`p-10 border-t-8 animate-fade-in ${isCorrect ? 'bg-emerald-50 border-emerald-500' : 'bg-rose-50 border-rose-500'}`}>
-                                    <div className="flex items-start space-x-4">
-                                        <Icon name={isCorrect ? "check-circle-2" : "alert-circle"} className={`w-6 h-6 shrink-0 mt-1 ${isCorrect ? 'text-emerald-600' : 'text-rose-600'}`} />
-                                        <div className="flex-1">
-                                            <h4 className={`font-black text-[10px] uppercase tracking-widest mb-2 ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>{isCorrect ? '¡Correcto!' : 'Respuesta Incorrecta'}</h4>
-                                            <p className="text-slate-800 text-sm mb-6 font-medium italic">"{q.explanation}"</p>
-                                            <button onClick={handleNext} className="w-full sm:w-auto bg-slate-900 text-white py-4 px-10 rounded-2xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center space-x-3 hover:bg-slate-800 transition-all">
-                                                <span>{currentQuestionIndex < totalItems - 1 ? 'Continuar' : 'Finalizar Evaluación'}</span>
-                                                <Icon name="arrow-right" className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+            if (appState === 'closed') return (
+                <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white text-center p-6">
+                    <div className="animate-fade-in">
+                        <Icon name="check-circle" className="w-16 h-16 text-emerald-500 mb-6 mx-auto" />
+                        <h1 className="text-2xl font-black uppercase mb-4 tracking-tighter">¡Registrado!</h1>
+                        <p className="text-slate-500 text-sm italic">Ya puedes cerrar esta ventana. Tu nota ha sido guardada.</p>
                     </div>
                 </div>
             );
