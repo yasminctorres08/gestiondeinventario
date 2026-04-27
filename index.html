@@ -17,7 +17,6 @@
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .bg-navy { background-color: #0f172a; }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -26,9 +25,8 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
        
-        // Configuración de URL para Google Sheets
+        // URL DE TU GOOGLE APPS SCRIPT
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwYPqemzn7BJwB4tXb2sOyVEBcp0JIutrVNe3bVU1mBsjGLb2fRyqh6RWvIGYkMfbo/exec"; 
-
 
         const Icon = ({ name, className }) => {
             const iconRef = useRef(null);
@@ -113,30 +111,33 @@
                 if (WEB_APP_URL) {
                     setAppState('sending');
                     
-                    // Ajuste de carga útil para evitar 'undefined' en la hoja de cálculo
-                    // Aseguramos que las llaves coincidan con las que espera el script
-                    const payload = {
-                        nombre: userName.toUpperCase(),
+                    const cleanName = userName.trim().toUpperCase();
+                    
+                    // Creamos el set de datos con múltiples variantes de nombres de clave
+                    // para asegurar que el script capture una (Nombre, nombre, name, etc)
+                    const data = {
+                        nombre: cleanName,
+                        Nombre: cleanName,
+                        name: cleanName,
                         unidad: "Manejo de Inventario (25 Preg)",
+                        Unidad: "Manejo de Inventario (25 Preg)",
                         aciertos: score.toString(),
+                        Aciertos: score.toString(),
                         total: totalItems.toString(),
-                        nota: finalGrade.toFixed(2)
+                        nota: finalGrade.toFixed(2),
+                        Nota: finalGrade.toFixed(2)
                     };
 
-                    try {
-                        // Usamos URLSearchParams para asegurar compatibilidad con scripts simples de Google
-                        const formData = new URLSearchParams();
-                        for (const key in payload) {
-                            formData.append(key, payload[key]);
-                        }
+                    const searchParams = new URLSearchParams(data).toString();
 
-                        await fetch(WEB_APP_URL, { 
+                    try {
+                        // Enviamos tanto en la URL (GET style) como en el cuerpo (POST style)
+                        // no-cors es necesario para Google Apps Script
+                        await fetch(`${WEB_APP_URL}?${searchParams}`, { 
                             method: 'POST', 
-                            mode: 'no-cors', // Importante para Google Apps Script
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            },
-                            body: formData.toString()
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: searchParams
                         });
                     } catch (e) {
                         console.error("Error persistencia", e);
@@ -144,17 +145,14 @@
                 }
                 
                 setAppState('closed');
-                setTimeout(() => {
-                    window.close();
-                }, 1000);
             };
 
             if (appState === 'sending') return (
-                <div className="min-h-screen flex items-center justify-center bg-navy text-white">
+                <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
                     <div className="text-center">
                         <div className="loader rounded-full border-4 border-t-4 border-cyan-500 h-14 w-14 mb-6 mx-auto"></div>
-                        <p className="text-cyan-400 font-black animate-pulse tracking-widest uppercase text-xs">Guardando en Base de Datos...</p>
-                        <p className="text-slate-500 text-[10px] mt-2 uppercase">No cierre la ventana todavía</p>
+                        <p className="text-cyan-400 font-black animate-pulse tracking-widest uppercase text-xs">Registrando Participante...</p>
+                        <p className="text-white text-sm mt-4 font-bold uppercase">{userName}</p>
                     </div>
                 </div>
             );
@@ -165,9 +163,12 @@
                         <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Icon name="check-check" className="w-10 h-10 text-emerald-500" />
                         </div>
-                        <h1 className="text-2xl font-black uppercase tracking-tighter mb-4">Registro Exitoso</h1>
-                        <p className="text-slate-400 text-sm mb-8">Tus resultados han sido enviados a la hoja de control. Ya puedes cerrar esta pestaña de forma segura.</p>
-                        <button onClick={() => window.close()} className="px-8 py-4 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl">Finalizar Sesión</button>
+                        <h1 className="text-2xl font-black uppercase tracking-tighter mb-4">Registro Completo</h1>
+                        <p className="text-slate-400 text-sm mb-8">Tus datos se enviaron correctamente. Por favor, informa al facilitador que has terminado.</p>
+                        <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 mb-8">
+                            <p className="text-[10px] uppercase text-slate-500 mb-1">Nota Guardada</p>
+                            <p className="text-2xl font-black text-emerald-400">{finalGrade.toFixed(1)} / 20</p>
+                        </div>
                     </div>
                 </div>
             );
@@ -175,30 +176,30 @@
             if (appState === 'start') return (
                 <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
                     <div className="max-w-md w-full bg-slate-800 rounded-[3rem] shadow-2xl border border-slate-700 overflow-hidden animate-fade-in">
-                        <div className="bg-gradient-to-br from-indigo-950 to-navy p-12 text-center text-white border-b border-slate-700">
+                        <div className="bg-gradient-to-br from-indigo-950 to-slate-900 p-12 text-center text-white border-b border-slate-700">
                             <div className="w-16 h-16 bg-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
                                 <Icon name="boxes" className="w-8 h-8 text-cyan-400" />
                             </div>
                             <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">Manejo de</h1>
                             <h1 className="text-4xl font-black uppercase tracking-widest text-cyan-400">Inventario</h1>
-                            <p className="mt-2 text-[9px] text-cyan-500/60 uppercase tracking-[0.3em]">Sistema de Evaluación Inces</p>
+                            <p className="mt-2 text-[9px] text-cyan-500/60 uppercase tracking-[0.3em]">Examen Digital Inces</p>
                         </div>
                         <form onSubmit={handleStart} className="p-10">
-                            <label className="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3 ml-2 italic text-center">Identificación del Participante</label>
-                            <input required className="w-full p-5 bg-slate-900 border-2 border-slate-700 rounded-2xl mb-8 outline-none focus:border-cyan-500 text-white text-center font-bold tracking-wide uppercase" value={userName} onChange={e => setUserName(e.target.value)} placeholder="Apellidos y Nombres" />
-                            <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl tracking-widest uppercase text-xs">Iniciar Prueba</button>
+                            <label className="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3 ml-2 italic text-center italic">Ingresa tu Nombre Completo</label>
+                            <input required className="w-full p-5 bg-slate-900 border-2 border-slate-700 rounded-2xl mb-8 outline-none focus:border-cyan-500 text-white text-center font-bold tracking-wide uppercase" value={userName} onChange={e => setUserName(e.target.value)} placeholder="Ej: JUAN PEREZ" />
+                            <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl tracking-widest uppercase text-xs">Entrar a la Prueba</button>
                         </form>
                     </div>
                 </div>
             );
 
             if (appState === 'finished') return (
-                <div className="min-h-screen flex items-center justify-center p-4 bg-navy">
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-950">
                     <div className="max-w-md w-full bg-slate-800 rounded-[3rem] shadow-2xl p-12 text-center border border-slate-700 animate-fade-in">
                         <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
                             <Icon name="award" className="w-10 h-10 text-emerald-400" />
                         </div>
-                        <h2 className="text-cyan-500 font-black uppercase tracking-widest mb-2 text-[10px]">Resultado Obtenido</h2>
+                        <h2 className="text-cyan-500 font-black uppercase tracking-widest mb-2 text-[10px]">Examen Finalizado</h2>
                         <h1 className="text-xl font-black text-white mb-8 uppercase italic border-b border-slate-700 pb-4 truncate">{userName}</h1>
                         
                         <div className="grid grid-cols-2 gap-4 mb-10">
@@ -214,9 +215,8 @@
 
                         <button onClick={handleFinalizeAndClose} className="w-full bg-rose-600 text-white font-black py-6 rounded-2xl flex items-center justify-center space-x-3 hover:bg-rose-500 transition-all shadow-lg active:scale-95">
                             <Icon name="save" className="w-5 h-5" />
-                            <span className="tracking-widest uppercase text-xs italic">Registrar y Cerrar</span>
+                            <span className="tracking-widest uppercase text-xs italic">Guardar Resultados</span>
                         </button>
-                        <p className="mt-6 text-[8px] text-slate-500 uppercase tracking-widest leading-relaxed">Al presionar se guardarán los datos y se cerrará la aplicación permanentemente.</p>
                     </div>
                 </div>
             );
@@ -230,25 +230,25 @@
                         <div className="mb-8 px-6">
                             <div className="flex justify-between items-center mb-3">
                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Pregunta {currentQuestionIndex + 1} de {totalItems}</span>
-                                <div className="px-3 py-1 bg-white border border-slate-200 rounded-full shadow-sm text-[10px] font-black text-navy uppercase italic">Manejo de Inventario</div>
+                                <div className="px-3 py-1 bg-white border border-slate-200 rounded-full shadow-sm text-[10px] font-black text-slate-800 uppercase italic">Participante: {userName}</div>
                             </div>
                             <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden shadow-inner border border-white">
-                                <div className="h-full bg-navy transition-all duration-700 ease-out" style={{ width: `${((currentQuestionIndex + 1) / totalItems) * 100}%` }}></div>
+                                <div className="h-full bg-slate-900 transition-all duration-700 ease-out" style={{ width: `${((currentQuestionIndex + 1) / totalItems) * 100}%` }}></div>
                             </div>
                         </div>
 
                         <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-200 animate-fade-in">
                             <div className="p-10 sm:p-14 text-center">
                                 <div className="mb-8 flex justify-center">
-                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-navy">
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-900">
                                         <Icon name={q.icon} className="w-6 h-6" />
                                     </div>
                                 </div>
                                 <h2 className="text-xl font-bold text-slate-800 leading-tight mb-12 min-h-[4rem] italic">{q.text}</h2>
                                 
                                 <div className="grid grid-cols-2 gap-4">
-                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(true)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[10px] transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:bg-navy hover:text-white' : selectedAnswer === true ? (q.answer === true ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === true ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Verdadero</button>
-                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(false)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[10px] transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:bg-navy hover:text-white' : selectedAnswer === false ? (q.answer === false ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === false ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Falso</button>
+                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(true)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[10px] transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:bg-slate-900 hover:text-white' : selectedAnswer === true ? (q.answer === true ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === true ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Verdadero</button>
+                                    <button disabled={isAnswerSubmitted} onClick={() => handleAnswer(false)} className={`py-6 rounded-2xl border-2 font-black uppercase tracking-widest text-[10px] transition-all ${!isAnswerSubmitted ? 'border-slate-100 hover:bg-slate-900 hover:text-white' : selectedAnswer === false ? (q.answer === false ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-rose-500 border-rose-500 text-white') : (q.answer === false ? 'border-emerald-200 text-emerald-500' : 'opacity-20')}`}>Falso</button>
                                 </div>
                             </div>
 
@@ -259,7 +259,7 @@
                                         <div className="flex-1">
                                             <h4 className={`font-black text-[10px] uppercase tracking-widest mb-2 ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>{isCorrect ? '¡Correcto!' : 'Respuesta Incorrecta'}</h4>
                                             <p className="text-slate-800 text-sm mb-6 font-medium italic">"{q.explanation}"</p>
-                                            <button onClick={handleNext} className="w-full sm:w-auto bg-navy text-white py-4 px-10 rounded-2xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center space-x-3 hover:bg-slate-800 transition-all">
+                                            <button onClick={handleNext} className="w-full sm:w-auto bg-slate-900 text-white py-4 px-10 rounded-2xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center space-x-3 hover:bg-slate-800 transition-all">
                                                 <span>{currentQuestionIndex < totalItems - 1 ? 'Continuar' : 'Finalizar Evaluación'}</span>
                                                 <Icon name="arrow-right" className="w-4 h-4" />
                                             </button>
