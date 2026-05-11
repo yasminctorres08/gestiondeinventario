@@ -1,0 +1,209 @@
+body 
+{ 	font-family: 'Segoe UI', 
+	sans-serif; 
+	background-color: #f0f2f5; 
+	display: flex; 
+	justify-content: center; 
+	padding: 20px; 
+}
+
+.container { 
+	max-width: 600px; 
+	width: 100%; 
+	background: white; 
+	border-radius: 15px; 
+	box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+	overflow: hidden; 
+}
+
+.header-inces { 
+	background: #0056b3; 
+	color: white; 
+	padding: 20px; 
+	text-align: center; 
+}
+
+/* Ajustamos el contenedor del logo para que sea flexible */
+.logo-placeholder {
+	background: white;
+    	width: 80px;
+	/* Puedes ajustar el tamaño según prefieras */
+    	height: 80px;
+    	margin: 0 auto 10px;
+    	border-radius: 50%;
+    	display: flex;
+    	align-items: center;
+    	justify-content: center;
+    	overflow: hidden; /* Corta cualquier parte de la imagen que salga del círculo */
+    	border: 2px solid #ff0000;
+}
+
+/* Estilo específico para la imagen dentro del contenedor */
+.logo-img {
+    width: 100%;       /* La imagen ocupará el ancho del círculo */
+    height: auto;      /* Mantiene la proporción original */
+    display: block;
+}
+
+/* Estilo para la lista de instrucciones */
+#instrucciones ul {
+    text-align: left;
+    line-height: 2.0;
+}
+
+#timer-bar {
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+    border: 1px solid #ffeeba;
+}
+
+.content { 
+	padding: 20px; 
+}
+
+input { 
+	width: 100%; 
+	padding: 10px; 
+	margin: 10px 0; 
+	border: 1px solid #ccc; 
+	border-radius: 5px; 
+	box-sizing: border-box; }
+
+button { 
+	background: #0000ff; 
+	color: white; border: 
+	none; padding: 15px; 
+	border-radius: 5px; 
+	cursor: pointer; 
+	width: 100%; 
+	font-weight: bold; 
+	margin-top: 20px;
+}
+
+button:hover { 
+	background: #0000ff; 
+}
+
+button:disabled {
+    background-color: #cccccc; /* Gris para indicar que está bloqueado */
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pregunta-card { 
+    background: #f8f9fa; 
+    padding: 30px; 
+    border-radius: 8px; 
+    border-left: 5px solid #0000ff; 
+    margin: 25px 0; /* Corregido: 25px arriba/abajo, 0 a los lados */
+}
+
+#timer-bar { 
+    font-size: 1.2em; 
+    text-align: center; 
+    margin-bottom: 15px; 
+    font-weight: bold; 
+    background: #fff3cd; /* Fondo amarillento de advertencia */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#segundos {
+    font-size: 1.4em;
+    display: inline-block;
+    min-width: 30px;
+}
+
+.urgente { 
+	color: red; 
+	animation: parpadeo 0.5s infinite; 
+}
+
+@keyframes parpadeo { 50% { opacity: 0.5; } }
+
+/* Centra el texto del enunciado */
+.enunciado {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Contenedor que agrupa ambas opciones */
+.opciones-container {
+    display: flex;
+	margin:	10px;
+    flex-direction: column; /* Pone una opción sobre la otra */
+    align-items: left;    
+    gap: 10px;              /* Espacio entre Verdadero y Falso */
+}
+
+/* Alinea el radio button con su palabra */
+.opcion-item {
+    display: flex;
+    align-items: center; 
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 10px; /* Añadimos un poco de área de clic */
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.opcion-item:hover {
+    background-color: #e9ecef; /* Efecto visual al pasar el mouse */
+}
+
+.opcion-item input[type="radio"] {
+    width: 20px; /* Tamaño fijo para el círculo */
+    height: 20px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+/* Espaciado y diseño de la tarjeta de resultados */
+#resultado {
+    text-align: center;
+    padding: 20px;
+}
+
+.resultado-cuerpo {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #dee2e6;
+}
+
+.dato-resultado {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 1.1em;
+}
+
+/* Caja de estatus dinámica */
+.estatus-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.3em;
+    text-transform: uppercase;
+}
+
+.aprobado-estilo {
+    background-color: #d4edda;
+    color: #155724;
+    border: 2px solid #c3e6cb;
+}
+
+.reprobado-estilo {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 2px solid #f5c6cb;
+}
