@@ -163,7 +163,7 @@ function siguientePregunta() {
 
 
 // 1. Siempre coloca la URL al principio de tu archivo script.js, fuera de cualquier función
-const URL_GOOGLE_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzJ8bym7nJuKCAgqTFawuAOte0aXbTSjavbs_o9pEq_Ctz7yKkrcPdHLX2T3du8Qt1x/exec";
+const URL_GOOGLE_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbxFt6mwBNQcZx54aCjVe3VuOTWXtWj7k_SNfTAnuSOYKS0nrCE1R-Rpic5_opI6MhVA/exec";
 
 function finalizar() {
     const totalPreguntas = preguntas.length;
